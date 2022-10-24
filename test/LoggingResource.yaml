@@ -1,8 +1,8 @@
 apiVersion: logging.banzaicloud.io/v1beta1
 kind: Logging
 metadata:
-  name: []
+  name: dbs-log
 spec:
   fluentd: {}
   fluentbit: {}
-  controlNamespace: dbs-qa
+  controlNamespace: operators
