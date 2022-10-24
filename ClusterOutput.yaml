@@ -1,0 +1,43 @@
+apiVersion: logging.banzaicloud.io/v1beta1
+kind: ClusterOutput
+metadata:
+  name: es-cl-output
+spec:
+  elasticsearch:
+    host: elasticsearch-es-http
+    port: 9200
+    scheme: https
+    ssl_verify: false
+    ssl_version: TLSv1_2
+    user: elastic
+    password:
+      valueFrom:
+        secretKeyRef:
+          name: elasticsearch-es-elastic-user
+          key: elastic
+    index_name: applicationlog
+    rollover_index: true
+    index_date_pattern: "now/d"
+    enable_ilm: true
+    ilm_policy_id: applicationlog
+    ilm_policy_overwrite: true
+    ilm_policy: '{"policy": {"phases": {"hot": {"min_age": "0ms","actions": {"rollover": {"max_age": "7d","max_primary_shard_size": "20gb"},"set_priority": {"priority": 100}}},"delete": {"min_age": "8d","actions": {"delete": {"delete_searchable_snapshot": true}}}}}}'
+    template_name: applicationlog
+    template_file:
+      mountFrom:
+        secretKeyRef:
+          name: index-template
+          key: indextemplate.json
+    customize_template: '{"<<shard>>": "2","<<replica>>": "1"}'
+    include_timestamp: true
+    request_timeout: 30s
+    reload_connections: false
+    reconnect_on_error: true
+    reload_on_failure: true
+    log_es_400_reason: false
+    index_name: app
+    application_name: log
+    buffer:
+      timekey: 1m
+      timekey_wait: 30s
+      timekey_use_utc: true
